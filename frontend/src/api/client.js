@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://yesly.onrender.com/api';
 
 async function request(path, options = {}) {
   const token = localStorage.getItem('dating_jwt');
@@ -8,6 +8,16 @@ async function request(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
   let data = null;
   try { data = await res.json(); } catch {}
+
+  if (res.status === 401 || res.status === 403) {
+  localStorage.removeItem('dating_jwt');
+
+  // Redirect to login
+  window.location.href = '/login';
+
+  throw new Error('Your session has expired. Please log in again.');
+}
+
   if (!res.ok) throw new Error(data?.message || 'Request failed');
   return data;
 }
