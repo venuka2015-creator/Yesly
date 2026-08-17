@@ -29,35 +29,38 @@ export default function RecipientPage() {
     [data?.noClickCount]
   );
 
-  const respond = (answer) => {
-  if (busy || data?.status !== 'PENDING') return;
+const respond = (answer) => {
+  if (!data || data.status !== 'PENDING') return;
 
-  // YES
-  if (answer === 'YES') {
-    // Show YES result immediately
+  if (answer === 'NO') {
+    const newCount = (data.noClickCount || 0) + 1;
+
+    // Update UI immediately
     setData((prev) => ({
       ...prev,
-      status: 'ACCEPTED'
+      noClickCount: newCount
     }));
 
-    // Save in background
-    api.respond(token, 'YES').catch((e) => {
-      console.error('Failed to save YES response:', e);
+    // Save response in background
+    api.respond(token, 'NO').catch((e) => {
+      console.error('Failed to save NO response:', e);
     });
 
     return;
   }
 
-  // NO
-  setData((prev) => ({
-    ...prev,
-    noClickCount: (prev.noClickCount || 0) + 1
-  }));
+  if (answer === 'YES') {
+    // Update UI immediately
+    setData((prev) => ({
+      ...prev,
+      status: 'ACCEPTED'
+    }));
 
-  // Save NO response in background
-  api.respond(token, 'NO').catch((e) => {
-    console.error('Failed to save NO response:', e);
-  });
+    // Save response in background
+    api.respond(token, 'YES').catch((e) => {
+      console.error('Failed to save YES response:', e);
+    });
+  }
 };
 
   if (error) return <div className="recipient-screen"><FloatingHearts /><div className="recipient-card"><h1>Oops.</h1><p>{error}</p></div></div>;
