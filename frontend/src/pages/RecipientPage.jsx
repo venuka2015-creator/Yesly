@@ -19,7 +19,6 @@ export default function RecipientPage() {
   const { token } = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     api.publicRequest(token).then(setData).catch((e) => setError(e.message));
@@ -30,17 +29,36 @@ export default function RecipientPage() {
     [data?.noClickCount]
   );
 
-  const respond = async (answer) => {
-    if (busy || data?.status !== 'PENDING') return;
-    setBusy(true);
-    try {
-      setData(await api.respond(token, answer));
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setBusy(false);
-    }
-  };
+  const respond = (answer) => {
+  if (busy || data?.status !== 'PENDING') return;
+
+  // YES
+  if (answer === 'YES') {
+    // Show YES result immediately
+    setData((prev) => ({
+      ...prev,
+      status: 'ACCEPTED'
+    }));
+
+    // Save in background
+    api.respond(token, 'YES').catch((e) => {
+      console.error('Failed to save YES response:', e);
+    });
+
+    return;
+  }
+
+  // NO
+  setData((prev) => ({
+    ...prev,
+    noClickCount: (prev.noClickCount || 0) + 1
+  }));
+
+  // Save NO response in background
+  api.respond(token, 'NO').catch((e) => {
+    console.error('Failed to save NO response:', e);
+  });
+};
 
   if (error) return <div className="recipient-screen"><FloatingHearts /><div className="recipient-card"><h1>Oops.</h1><p>{error}</p></div></div>;
   if (!data) return <div className="recipient-screen"><FloatingHearts /><div className="loader">♥</div></div>;
@@ -74,11 +92,10 @@ export default function RecipientPage() {
             <div className="answer-area">
               <button
                 className="yes-button curved-button"
-                disabled={busy}
                 onClick={() => respond('YES')}
                 style={{ transform: `scale(${1 + Math.min(data.noClickCount, 8) * 0.11})` }}
               >YES ♥</button>
-              <button className="no-button curved-button" disabled={busy} onClick={() => respond('NO')}>No</button>
+              <button className="no-button curved-button"  onClick={() => respond('NO')}>No</button>
             </div>
             {message && <p className="funny-message">{message}</p>}
           </>
