@@ -149,3 +149,53 @@ textarea,
 .themed-shell .theme-current {
   color: color-mix(in srgb, var(--theme-text, #5a0000) 65%, transparent);
 }
+
+:root {
+  --theme-background: #f8f0e5;
+  --theme-surface: #fff9f1;
+  --theme-primary: #720000;
+  --theme-secondary: #a64b4b;
+  --theme-text: #4a1717;
+  --theme-muted: #8b6a6a;
+  --theme-heart: #b76e79;
+  --theme-border: #dfc8b8;
+  --theme-button-text: #ffffff;
+}
+
+body {
+  margin: 0;
+  background: var(--theme-background);
+  color: var(--theme-text);
+  transition:
+    background 0.5s ease,
+    color 0.5s ease;
+}
+
+.theme-page {
+  min-height: 100vh;
+  transition:
+    background 0.5s ease,
+    color 0.5s ease;
+}
+
+button {
+  border-radius: 999px;
+}
+
+.primary-button {
+  background: var(--theme-primary);
+  color: var(--theme-button-text);
+  border: none;
+}
+
+.secondary-button {
+  background: transparent;
+  color: var(--theme-primary);
+  border: 1px solid var(--theme-primary);
+}
+
+.card {
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+}
